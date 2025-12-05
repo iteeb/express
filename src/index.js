@@ -6,7 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const User = require("./models/user");
 const projectRoutes = require("./routes/projectRoute");
-
+const taskRoutes = require("./routes/taskRoute");
 const mongoose = require("mongoose");
 
 app.use(
@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/projects", projectRoutes);
-
+app.use("/tasks", taskRoutes);
  
 // CONNEXION MongoDB
 const connect = async () => {
