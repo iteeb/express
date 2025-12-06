@@ -126,4 +126,76 @@ const deleteTask = async (req, res) => {
   }
 };
 
-module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask };
+
+// Récupérer toutes les tâches avec tri et recherche (version alternative)
+const getTasksWithFilter = async (req, res) => {
+  try {
+    const { 
+      title, 
+      status, 
+      project, 
+      assignedTo, 
+      sort = "createdAt", 
+      order = "desc" 
+    } = req.query;
+
+    // Construire le filtre de base
+    let filter = {};
+    
+    // Recherche par titre (insensible à la casse)
+    if (title) {
+      filter.title = { $regex: title, $options: "i" };
+    }
+    
+    // Filtre par statut
+    if (status) {
+      filter.status = status;
+    }
+    
+    // Filtre par projet
+    if (project) {
+      filter.project = project;
+    }
+    
+    // Filtre par utilisateur assigné
+    if (assignedTo) {
+      filter.assignedTo = assignedTo;
+    }
+    
+    // Pour les non-managers, ils ne peuvent voir que leurs tâches
+    if (req.user.role !== "manager") {
+      // S'ils spécifient un assignedTo différent d'eux-mêmes, erreur
+      if (assignedTo && assignedTo !== req.user.id) {
+        return res.status(403).json({ 
+          success: false, 
+          message: "Accès non autorisé" 
+        });
+      }
+      // Sinon, on filtre par défaut leurs tâches
+      else if (!assignedTo) {
+        filter.assignedTo = req.user.id;
+      }
+    }
+
+    // Exécuter la requête avec tri
+    const sortOrder = order === "asc" ? 1 : -1;
+    const tasks = await Task.find(filter)
+      .populate("project", "name")
+      .populate("assignedTo", "name login")
+      .sort({ [sort]: sortOrder });
+
+    return res.status(200).json({ 
+      success: true, 
+      count: tasks.length,
+      tasks 
+    });
+  } catch (error) {
+    console.error("Erreur dans getTasksWithFilter:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Erreur serveur" 
+    });
+  }
+};
+
+module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask, getTasksWithFilter };

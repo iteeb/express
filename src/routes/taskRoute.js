@@ -6,8 +6,10 @@ const {
   getTaskById,
   updateTask,
   deleteTask,
+  getTasksWithFilter,
 } = require("../controllers/taskController");
-
+// Récupérer toutes les tâches avec filtres (FIXE - en premier)
+router.get("/getTasksFiltered", getTasksWithFilter);
 // Créer une tâche
 router.post("/addTask", createTask);
 
@@ -22,5 +24,7 @@ router.put("/update/:id", updateTask);
 
 // Supprimer une tâche
 router.delete("/delete/:id", deleteTask);
+
+
 
 module.exports = router;
