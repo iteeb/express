@@ -8,31 +8,23 @@ const {
   updateProject,
   deleteProject,
 } = require("../controllers/projectController");
+const { auth } = require("../middlewares/authMiddleware");
 
-
-// = POUR TESTER getProjectsWithFilters
-const fakeManager = (req, res, next) => {
-  req.user = {
-    id: "507f1f77bcf86cd799439011",  // ID fake 
-    role: "manager"                  //un manager
-  };
-  next();
-};
 // créer un projet
-router.post("/addProject", createProject);
+router.post("/addProject", auth, createProject);
 
 // get tt les projets
-router.get("/getProjects", getProjects);
+router.get("/getProjects", auth, getProjects);
 
 // Get projets avec filtres
-router.get("/getProjects/filters" ,fakeManager, getProjectsWithFilters);
+router.get("/getProjects/filters", auth, getProjectsWithFilters);
 // get un projet par id
-router.get("/:id", getProjectById);
+router.get("/:id", auth, getProjectById);
 
 // update projet
-router.put("/update/:id", updateProject);
+router.put("/update/:id", auth, updateProject);
 
 // delete projet
-router.delete("/delete/:id", deleteProject);
+router.delete("/delete/:id", auth, deleteProject);
 
 module.exports = router;

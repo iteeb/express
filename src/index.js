@@ -4,9 +4,9 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const User = require("./models/user");
 const projectRoutes = require("./routes/projectRoute");
 const taskRoutes = require("./routes/taskRoute");
+const authRoutes = require("./routes/authRoute");
 const mongoose = require("mongoose");
 
 app.use(
@@ -23,21 +23,11 @@ app.use(express.urlencoded({ extended: true }));
 // Ce middleware permet à Express de lire les cookies envoyés par le navigateur.
 app.use(cookieParser());
 
-
- // FAKE manager temporaire pur tester l 
-app.use((req, res, next) => {
-  req.user = {
-    id: "507f1f77bcf86cd799439011",  
-    role: "manager",              
-  };
-  next();
-});
-
-
 // Routes
+app.use("/auth", authRoutes);
 app.use("/projects", projectRoutes);
 app.use("/tasks", taskRoutes);
- 
+
 // CONNEXION MongoDB
 const connect = async () => {
   try {

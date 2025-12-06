@@ -14,8 +14,8 @@ const createProject = async (req, res) => {
     const project = await Project.create({
       name,
       description,
-      status, // in progress / completed / on hold
-      owner: req.user.id, // provisoire (fake user), baaed authMiddleware
+      status, 
+      owner: req.user.id, 
     });
 
     return res.status(201).json({
