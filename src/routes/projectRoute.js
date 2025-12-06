@@ -6,6 +6,7 @@ const {
   getProjectById,
   updateProject,
   deleteProject,
+  getProjectsWithFilters
 } = require("../controllers/projectController");
 const { auth } = require("../middlewares/authMiddleware");
 
@@ -23,6 +24,9 @@ router.put("/update/:id", auth, updateProject);
 
 // delete projet
 router.delete("/delete/:id", auth, deleteProject);
+
+// Get projets avec filtres
+router.get("/getProjects/filters", auth, getProjectsWithFilters);
 
 module.exports = router;
  
