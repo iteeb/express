@@ -123,6 +123,76 @@ const updateProject = async (req, res) => {
   }
 };
 
+// Récupérer tous les projets avec tri et recherche
+const getProjectsWithFilters = async (req, res) => {
+  try {
+    const { 
+      name, 
+      status, 
+      owner, 
+      description,
+      sort = "createdAt", 
+      order = "desc" 
+    } = req.query;
+
+    //filtre 
+    let filter = {};
+    
+    // Recherche par nom 
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+    
+    // Recherche par description 
+    if (description) {
+      filter.description = { $regex: description, $options: "i" };
+    }
+    
+    // Filtre par statut
+    if (status) {
+      filter.status = status;
+    }
+    
+    // Filtre par propriétaire
+    if (owner) {
+      filter.owner = owner;
+    }
+    
+    // les users ynajmou ychoufou ken les projets mteehom kahaw (mch mtaa l users kol)
+    if (req.user.role !== "manager") {
+      // si owner different bch ykharej erreur
+      if (owner && owner !== req.user.id) {
+        return res.status(403).json({ 
+          success: false, 
+          message: "Vous ne pouvez voir que vos propres projets" 
+        });
+      }
+      // Sinon, on filtre par défaut leurs projets
+      else if (!owner) {
+        filter.owner = req.user.id;
+      }
+    }
+
+    // Exécuter la requête avec tri
+    const sortOrder = order === "asc" ? 1 : -1;
+    const projects = await Project.find(filter)
+      .populate("owner", "name login")
+      .sort({ [sort]: sortOrder });
+
+    return res.status(200).json({ 
+      success: true, 
+      count: projects.length,
+      projects 
+    });
+  } catch (error) {
+    console.error("Erreur dans getProjectsWithFilters:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Erreur serveur" 
+    });
+  }
+};
+
 //  delete project
 const deleteProject = async (req, res) => {
   try {
@@ -162,6 +232,7 @@ const deleteProject = async (req, res) => {
 module.exports = {
   createProject,
   getProjects,
+  getProjectsWithFilters ,
   getProjectById,
   updateProject,
   deleteProject,

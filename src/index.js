@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
- // FAKE USER TEMPORAIRE 
+ // FAKE manager temporaire pur tester l 
 app.use((req, res, next) => {
   req.user = {
     id: "507f1f77bcf86cd799439011",  

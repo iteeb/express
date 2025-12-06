@@ -127,7 +127,7 @@ const deleteTask = async (req, res) => {
 };
 
 
-// Récupérer toutes les tâches avec tri et recherche (version alternative)
+// Récupérer toutes les tâches avec tri et recherche 
 const getTasksWithFilter = async (req, res) => {
   try {
     const { 
@@ -139,10 +139,10 @@ const getTasksWithFilter = async (req, res) => {
       order = "desc" 
     } = req.query;
 
-    // Construire le filtre de base
+    // 
     let filter = {};
     
-    // Recherche par titre (insensible à la casse)
+    // Recherche par titre 
     if (title) {
       filter.title = { $regex: title, $options: "i" };
     }
@@ -162,16 +162,16 @@ const getTasksWithFilter = async (req, res) => {
       filter.assignedTo = assignedTo;
     }
     
-    // Pour les non-managers, ils ne peuvent voir que leurs tâches
+    // les users ynajmou yraw ken les taches kahaw 
     if (req.user.role !== "manager") {
-      // S'ils spécifient un assignedTo différent d'eux-mêmes, erreur
+      // erreur ken assignedto mch shyh
       if (assignedTo && assignedTo !== req.user.id) {
         return res.status(403).json({ 
           success: false, 
           message: "Accès non autorisé" 
         });
       }
-      // Sinon, on filtre par défaut leurs tâches
+      // Sinon filtrer par defaut 
       else if (!assignedTo) {
         filter.assignedTo = req.user.id;
       }
