@@ -14,8 +14,8 @@ const createProject = async (req, res) => {
     const project = await Project.create({
       name,
       description,
-      status, // in progress / completed / on hold
-      owner: req.user.id, // provisoire (fake user), baaed authMiddleware
+      status,
+      owner: req.user.id,
     });
 
     return res.status(201).json({
@@ -33,11 +33,12 @@ const getProjects = async (req, res) => {
   try {
     // ken el role du user connecté(eli f token) = manager yjib les projets
     if (req.user.role === "manager") {
-      const projects = await Project.find().populate("owner", "name login"); // na3mlou populate lel owner besh yarf chkon el user o yaffichi name w login bark
+      // na3mlou populate lel owner besh yarf chkon el user o yaffichi name w login bark
+      const projects = await Project.find().populate("owner", "name login");
       return res.status(200).json({ success: true, projects });
     }
 
-    // ken user normal → yjib ken mte3ou
+    // ken user normal yjib ken mte3ou
     const projects = await Project.find({ owner: req.user.id }).populate(
       "owner",
       "name login"
@@ -154,10 +155,6 @@ const deleteProject = async (req, res) => {
     return res.status(500).json({ message: "Erreur" });
   }
 };
-
-
-
-
 
 module.exports = {
   createProject,

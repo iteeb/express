@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "manager"],
     },
     active: { 
-        type: Boolean, default: false 
+        type: Boolean,
     },
   },
   { timestamps: true }
