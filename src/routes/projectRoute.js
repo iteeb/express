@@ -26,6 +26,6 @@ router.put("/update/:id", auth, updateProject);
 router.delete("/delete/:id", auth, deleteProject);
 
 // Get projets avec filtres
-router.get("/getProjects/filters", auth, getProjectsWithFilters);
+router.get("/getProjects/filters", auth , getProjectsWithFilters);
 
 module.exports = router;

@@ -154,50 +154,51 @@ const deleteProject = async (req, res) => {
     console.log(error);
     return res.status(500).json({ message: "Erreur" });
   }
-};
+}; 
+
 
 // Récupérer tous les projets avec tri et recherche
 const getProjectsWithFilters = async (req, res) => {
   try {
-    const {
-      name,
-      status,
-      owner,
+    const { 
+      name, 
+      status, 
+      owner, 
       description,
-      sort = "createdAt",
-      order = "desc",
+      sort = "createdAt", 
+      order = "desc" 
     } = req.query;
 
-    //filtre
+    //filtre 
     let filter = {};
-
-    // Recherche par nom
+    
+    // Recherche par nom 
     if (name) {
       filter.name = { $regex: name, $options: "i" };
     }
-
-    // Recherche par description
+    
+    // Recherche par description 
     if (description) {
       filter.description = { $regex: description, $options: "i" };
     }
-
+    
     // Filtre par statut
     if (status) {
       filter.status = status;
     }
-
+    
     // Filtre par propriétaire
     if (owner) {
       filter.owner = owner;
     }
-
+    
     // les users ynajmou ychoufou ken les projets mteehom kahaw (mch mtaa l users kol)
     if (req.user.role !== "manager") {
       // si owner different bch ykharej erreur
       if (owner && owner !== req.user.id) {
-        return res.status(403).json({
-          success: false,
-          message: "Vous ne pouvez voir que vos propres projets",
+        return res.status(403).json({ 
+          success: false, 
+          message: "Vous ne pouvez voir que vos propres projets" 
         });
       }
       // Sinon, on filtre par défaut leurs projets
@@ -212,16 +213,16 @@ const getProjectsWithFilters = async (req, res) => {
       .populate("owner", "name login")
       .sort({ [sort]: sortOrder });
 
-    return res.status(200).json({
-      success: true,
+    return res.status(200).json({ 
+      success: true, 
       count: projects.length,
-      projects,
+      projects 
     });
   } catch (error) {
     console.error("Erreur dans getProjectsWithFilters:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
+    return res.status(500).json({ 
+      success: false, 
+      message: "Erreur serveur" 
     });
   }
 
