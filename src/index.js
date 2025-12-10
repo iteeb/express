@@ -24,9 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Routes
-app.use("/auth", authRoutes);
+
 app.use("/projects", projectRoutes);
 app.use("/tasks", taskRoutes);
+app.use("/auth", authRoutes);
 
 // CONNEXION MongoDB
 const connect = async () => {

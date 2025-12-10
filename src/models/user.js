@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "manager"],
     },
+    active: {
+      type: Boolean,
+    },
   },
   { timestamps: true }
 );

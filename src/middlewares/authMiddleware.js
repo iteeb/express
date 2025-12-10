@@ -13,11 +13,4 @@ const auth = (req, res, next) => {
   }
 };
 
-// Vérifie si l'utilisateur est manager
-const onlyManager = (req, res, next) => {
-  if (!req.user || req.user.role !== "manager")
-    return res.status(403).json({ msg: "Accès réservé au manager" });
-  next();
-};
-
-module.exports = { auth, onlyManager };
+module.exports = { auth };

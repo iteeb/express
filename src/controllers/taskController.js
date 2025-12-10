@@ -4,10 +4,13 @@ const Project = require("../models/Project");
 // Créer une tâche
 const createTask = async (req, res) => {
   try {
-    const { title, description, status, deadline, project, assignedTo } = req.body;
+    const { title, description, status, deadline, project, assignedTo } =
+      req.body;
 
     if (!title || !project) {
-      return res.status(400).json({ message: "Le titre et le projet sont obligatoires." });
+      return res
+        .status(400)
+        .json({ message: "Le titre et le projet sont obligatoires." });
     }
 
     // nchoufou projet existe ou non
@@ -16,11 +19,13 @@ const createTask = async (req, res) => {
       return res.status(404).json({ message: "Projet introuvable." });
     }
 
-    // nchoufou est ce que manager hwa l aamal affectation 
+    // nchoufou est ce que manager hwa l aamal affectation
     let assignedUser = null;
     if (assignedTo) {
       if (req.user.role !== "manager") {
-        return res.status(403).json({ message: "Seul le manager peut assigner une tâche." });
+        return res
+          .status(403)
+          .json({ message: "Seul le manager peut assigner une tâche." });
       }
       assignedUser = assignedTo;
     }
@@ -47,12 +52,16 @@ const getTasks = async (req, res) => {
     let tasks;
 
     if (req.user.role === "manager") {
-      tasks = await Task.find().populate("project", "name").populate("assignedTo", "name login");
+      tasks = await Task.find()
+        .populate("project", "name")
+        .populate("assignedTo", "name login");
     } else {
       // Les users ma ycoufou ken les taches mteehom baaed ma aamal manager assignedTo
       tasks = await Task.find({
         $or: [{ assignedTo: req.user.id }, { assignedTo: null }],
-      }).populate("project", "name").populate("assignedTo", "name login");
+      })
+        .populate("project", "name")
+        .populate("assignedTo", "name login");
     }
 
     return res.status(200).json({ success: true, tasks });
@@ -72,7 +81,10 @@ const getTaskById = async (req, res) => {
     if (!task) return res.status(404).json({ message: "Tâche introuvable" });
 
     // Vérifier l'autorisation
-    if (req.user.role !== "manager" && task.assignedTo?.toString() !== req.user.id) {
+    if (
+      req.user.role !== "manager" &&
+      task.assignedTo?.toString() !== req.user.id
+    ) {
       return res.status(403).json({ message: "Accès refusé" });
     }
 
@@ -91,15 +103,22 @@ const updateTask = async (req, res) => {
 
     // Vérifier autorisation pour assignation
     if (req.body.assignedTo && req.user.role !== "manager") {
-      return res.status(403).json({ message: "Seul le manager peut assigner une tâche." });
+      return res
+        .status(403)
+        .json({ message: "Seul le manager peut assigner une tâche." });
     }
 
     // Les users ne peuvent pas modifier les tâches des autres
-    if (req.user.role !== "manager" && task.assignedTo?.toString() !== req.user.id) {
+    if (
+      req.user.role !== "manager" &&
+      task.assignedTo?.toString() !== req.user.id
+    ) {
       return res.status(403).json({ message: "Accès refusé" });
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     return res.status(200).json({ success: true, task: updatedTask });
   } catch (error) {
     console.error(error);
@@ -114,7 +133,10 @@ const deleteTask = async (req, res) => {
     if (!task) return res.status(404).json({ message: "Tâche introuvable" });
 
     //  le manager ou le propriétaire ynajmou yaamlou supprimer kahaw !
-    if (req.user.role !== "manager" && task.assignedTo?.toString() !== req.user.id) {
+    if (
+      req.user.role !== "manager" &&
+      task.assignedTo?.toString() !== req.user.id
+    ) {
       return res.status(403).json({ message: "Accès refusé" });
     }
 
@@ -126,52 +148,51 @@ const deleteTask = async (req, res) => {
   }
 };
 
-
-// Récupérer toutes les tâches avec tri et recherche 
+// Récupérer toutes les tâches avec tri et recherche (version alternative)
 const getTasksWithFilter = async (req, res) => {
   try {
-    const { 
-      title, 
-      status, 
-      project, 
-      assignedTo, 
-      sort = "createdAt", 
-      order = "desc" 
+    const {
+      title,
+      status,
+      project,
+      assignedTo,
+      sort = "createdAt",
+      order = "desc",
     } = req.query;
 
-    // 
+    // Construire le filtre de base
     let filter = {};
-    
-    // Recherche par titre 
+
+    // Recherche par titre (insensible à la casse)
     if (title) {
       filter.title = { $regex: title, $options: "i" };
     }
-    
+
     // Filtre par statut
     if (status) {
       filter.status = status;
     }
-    
+
     // Filtre par projet
     if (project) {
       filter.project = project;
     }
-    
+
     // Filtre par utilisateur assigné
     if (assignedTo) {
       filter.assignedTo = assignedTo;
     }
-    
-    // les users ynajmou yraw ken les taches kahaw 
+
+    // Pour les non-managers, ils ne peuvent voir que leurs tâches
     if (req.user.role !== "manager") {
-      // erreur ken assignedto mch shyh
+      // S'ils spécifient un assignedTo différent d'eux-mêmes, erreur
       if (assignedTo && assignedTo !== req.user.id) {
-        return res.status(403).json({ 
-          success: false, 
-          message: "Accès non autorisé" 
+        return res.status(403).json({
+          success: false,
+          message: "Accès non autorisé",
         });
       }
-      // Sinon filtrer par defaut 
+      // Sinon, on filtre par défaut leurs tâches
       else if (!assignedTo) {
         filter.assignedTo = req.user.id;
       }
@@ -184,18 +205,25 @@ const getTasksWithFilter = async (req, res) => {
       .populate("assignedTo", "name login")
       .sort({ [sort]: sortOrder });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       count: tasks.length,
-      tasks 
+      tasks,
     });
   } catch (error) {
     console.error("Erreur dans getTasksWithFilter:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Erreur serveur" 
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
     });
   }
 };
 
-module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask, getTasksWithFilter };
+module.exports = {
+  createTask,
+  getTasks,
+  getTaskById,
+  updateTask,
+  deleteTask,
+  getTasksWithFilter,
+};
